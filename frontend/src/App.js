@@ -1,20 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
 
+
 const App = () => {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
+  const [userName, setUserName] = useState("");
 
   const ws = useRef(null);
 
   useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8000/chat");
+    const socket = new WebSocket("ws://localhost:8000/chat");
+    ws.current = socket;
 
-    ws.current.onmessage = (event) => {
+    socket.onmessage = (event) => {
       const decodedMessage = JSON.parse(event.data);
 
       if (decodedMessage.type === "NEW_MESSAGE") {
         setMessages((prev) => [...prev, decodedMessage.message]);
       }
+
+      if (decodedMessage.type === "CONNECTED") {
+        setUserName(decodedMessage.username);
+      }
+    };
+
+    return () => {
+      socket.close();
     };
   }, []);
 
@@ -27,8 +38,26 @@ const App = () => {
     );
   };
 
+  const changeUserName = () => {
+    ws.current.send(
+      JSON.stringify({
+        type: "SET_USERNAME",
+        userName,
+      }),
+    );
+  };
+
   return (
     <>
+      <p>
+        <input
+          type="text"
+          value={userName}
+          name="userName"
+          onChange={(e) => setUserName(e.target.value)}
+        />
+      </p>
+      <button onClick={changeUserName}>set username</button>
       <p>
         <input
           type="text"
@@ -42,7 +71,9 @@ const App = () => {
       <div>
         {messages.map((message, index) => (
           <div key={index}>
-            <p>{message}</p>
+            <p>
+              {message.username} {message.text}
+            </p>
           </div>
         ))}
       </div>

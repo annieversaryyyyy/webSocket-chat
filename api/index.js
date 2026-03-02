@@ -11,8 +11,17 @@ const activeConnections = {};
 
 app.ws("/chat", (ws, req) => {
   const id = crypto.randomUUID();
+  let username = "Anonymous";
+
   console.log("Client connected, id=", id);
   activeConnections[id] = ws; //присвоение каждому юзеру айди
+
+  ws.send(
+    JSON.stringify({
+      type: "CONNECTED",
+      username,
+    }),
+  );
 
   ws.on("close", () => {
     console.log("client disconnected! id=", id);
@@ -22,6 +31,9 @@ app.ws("/chat", (ws, req) => {
   ws.on("message", (msg) => {
     const decodedMessage = JSON.parse(msg);
     switch (decodedMessage.type) {
+        case "SET_USERNAME": 
+        username = decodedMessage.userName
+        break;
       case "CREATE_MESSAGE":
         Object.keys(activeConnections).forEach((connId) => {
           const conn = activeConnections[connId];
@@ -29,7 +41,10 @@ app.ws("/chat", (ws, req) => {
           conn.send(
             JSON.stringify({
               type: "NEW_MESSAGE",
-              message: decodedMessage.message,
+              message: {
+                username,
+                text: decodedMessage.message,
+              },
             }),
           );
         });
@@ -37,7 +52,6 @@ app.ws("/chat", (ws, req) => {
       default:
         console.log("Unknown message", decodedMessage.type);
     }
-    ws.send(msg);
   });
   console.log(activeConnections);
 });
