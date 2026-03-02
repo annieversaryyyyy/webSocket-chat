@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-
+import "./App.css";
 
 const App = () => {
   const [messages, setMessages] = useState([]);
@@ -49,34 +49,39 @@ const App = () => {
 
   return (
     <>
-      <p>
-        <input
-          type="text"
-          value={userName}
-          name="userName"
-          onChange={(e) => setUserName(e.target.value)}
-        />
-      </p>
-      <button onClick={changeUserName}>set username</button>
-      <p>
-        <input
-          type="text"
-          value={messageText}
-          name="messageText"
-          onChange={(e) => setMessageText(e.target.value)}
-        />
-      </p>
-      <button onClick={sendMessage}>send</button>
+     <div className="chat-container">
+      <header className="chat-header">
+        <h2>Live Chat</h2>
+        <div className="user-block">
+          <input
+            type="text"
+            value={userName}
+            placeholder="Your name"
+            onChange={(e) => setUserName(e.target.value)}
+          />
+          <button onClick={changeUserName}>Change</button>
+        </div>
+      </header>
 
-      <div>
+      <div className="messages">
         {messages.map((message, index) => (
-          <div key={index}>
-            <p>
-              {message.username} {message.text}
-            </p>
+          <div key={index} className="message-card">
+            <div className="message-author">{message.username}</div>
+            <div className="message-text">{message.text}</div>
           </div>
         ))}
       </div>
+
+      <div className="message-input">
+        <input
+          type="text"
+          value={messageText}
+          placeholder="Write a message..."
+          onChange={(e) => setMessageText(e.target.value)}
+        />
+        <button onClick={sendMessage}>Send</button>
+      </div>
+    </div>
     </>
   );
 };
