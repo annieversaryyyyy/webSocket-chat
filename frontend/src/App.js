@@ -30,12 +30,17 @@ const App = () => {
   }, []);
 
   const sendMessage = () => {
+    if (!messageText.trim()) {
+      return;
+    }
+
     ws.current.send(
       JSON.stringify({
         type: "CREATE_MESSAGE",
         message: messageText,
       }),
     );
+    setMessageText("");
   };
 
   const changeUserName = () => {
@@ -49,39 +54,39 @@ const App = () => {
 
   return (
     <>
-     <div className="chat-container">
-      <header className="chat-header">
-        <h2>Live Chat</h2>
-        <div className="user-block">
+      <div className="chat-container">
+        <header className="chat-header">
+          <h2>Live Chat</h2>
+          <div className="user-block">
+            <input
+              type="text"
+              value={userName}
+              placeholder="Your name"
+              onChange={(e) => setUserName(e.target.value)}
+            />
+            <button onClick={changeUserName}>Change</button>
+          </div>
+        </header>
+
+        <div className="messages">
+          {messages.map((message, index) => (
+            <div key={index} className="message-card">
+              <div className="message-author">{message.username}</div>
+              <div className="message-text">{message.text}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="message-input">
           <input
             type="text"
-            value={userName}
-            placeholder="Your name"
-            onChange={(e) => setUserName(e.target.value)}
+            value={messageText}
+            placeholder="Write a message..."
+            onChange={(e) => setMessageText(e.target.value)}
           />
-          <button onClick={changeUserName}>Change</button>
+          <button onClick={sendMessage}>Send</button>
         </div>
-      </header>
-
-      <div className="messages">
-        {messages.map((message, index) => (
-          <div key={index} className="message-card">
-            <div className="message-author">{message.username}</div>
-            <div className="message-text">{message.text}</div>
-          </div>
-        ))}
       </div>
-
-      <div className="message-input">
-        <input
-          type="text"
-          value={messageText}
-          placeholder="Write a message..."
-          onChange={(e) => setMessageText(e.target.value)}
-        />
-        <button onClick={sendMessage}>Send</button>
-      </div>
-    </div>
     </>
   );
 };
