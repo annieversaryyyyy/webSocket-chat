@@ -46,7 +46,7 @@ app.ws("/chat", (ws, req) => {
               message: {
                 username,
                 type: decodedMessage.imageUrl ? "image" : "text",
-                text: decodedMessage.imageUrl ? null : decodedMessage.message,
+                text: decodedMessage.message || null,
                 content: decodedMessage.imageUrl || null,
               },
             }),
