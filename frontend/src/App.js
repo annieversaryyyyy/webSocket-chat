@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
+import CanvasDemo from "./CanvasDemo";
 
 const App = () => {
   const [messages, setMessages] = useState([]);
@@ -86,6 +87,7 @@ const App = () => {
           />
           <button onClick={sendMessage}>Send</button>
         </div>
+        <CanvasDemo/>
       </div>
     </>
   );
