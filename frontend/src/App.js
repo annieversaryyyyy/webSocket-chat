@@ -87,8 +87,8 @@ const App = () => {
           />
           <button onClick={sendMessage}>Send</button>
         </div>
-        <CanvasDemo/>
       </div>
+      <CanvasDemo />
     </>
   );
 };
