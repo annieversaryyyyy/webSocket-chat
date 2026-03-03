@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { apiUrl } from "./api/apiUrl";
 
-function CanvasDemo() {
+function CanvasDemo({ onClose }) {
   const [state, setState] = useState({
     mouseDown: false,
     pixelsArray: [],
@@ -20,13 +20,6 @@ function CanvasDemo() {
 
       if (decodedMessage.type === "CONNECTED") {
         prevPos.current = null;
-        decodedMessage.pixelsArray.forEach((coordinate) => {
-          if (coordinate?.break) {
-            prevPos.current = null;
-            return;
-          }
-          updateCanvas(coordinate.x, coordinate.y);
-        });
         setState((prevState) => ({
           ...prevState,
           pixelsArray: decodedMessage.pixelsArray,
@@ -35,12 +28,12 @@ function CanvasDemo() {
 
       if (decodedMessage.type === "NEW_PIXELS") {
         updateCanvas(decodedMessage.pixels.x, decodedMessage.pixels.y);
-
         setState((prevState) => ({
           ...prevState,
           pixelsArray: [...prevState.pixelsArray, decodedMessage.pixels],
         }));
       }
+    
 
       if (decodedMessage.type === "STROKE_END") {
         prevPos.current = null;
@@ -123,6 +116,25 @@ function CanvasDemo() {
     prevPos.current = { x, y };
   };
 
+  const clearCanvas = () => {
+    const ctx = canvas.current.getContext("2d");
+    ctx.clearRect(0, 0, canvas.current.width, canvas.current.height);
+  };
+
+  const handleSendDrawing = () => {
+    const image = canvas.current.toDataURL("image/png");
+
+    ws.current?.send(
+      JSON.stringify({
+        type: "CREATE_IMAGE",
+        image,
+      }),
+    );
+
+    clearCanvas();
+    onClose();
+  };
+
   return (
     <>
       <canvas
@@ -134,6 +146,8 @@ function CanvasDemo() {
         onMouseUp={mouseUpHandler}
         onMouseMove={canvasMouseMoveHandler}
       />
+      <button onClick={handleSendDrawing}>Send</button>
+      <button onClick={onClose}>Close</button>
     </>
   );
 }

@@ -45,7 +45,9 @@ app.ws("/chat", (ws, req) => {
               type: "NEW_MESSAGE",
               message: {
                 username,
-                text: decodedMessage.message,
+                type: decodedMessage.imageUrl ? "image" : "text",
+                text: decodedMessage.imageUrl ? null : decodedMessage.message,
+                content: decodedMessage.imageUrl || null,
               },
             }),
           );
@@ -70,6 +72,22 @@ app.ws("/chat", (ws, req) => {
           conn.send(
             JSON.stringify({
               type: "STROKE_END",
+            }),
+          );
+        });
+        break;
+      case "CREATE_IMAGE":
+        Object.keys(activeConnections).forEach((connId) => {
+          const conn = activeConnections[connId];
+
+          conn.send(
+            JSON.stringify({
+              type: "NEW_MESSAGE",
+              message: {
+                username,
+                type: "image",
+                content: decodedMessage.image,
+              },
             }),
           );
         });

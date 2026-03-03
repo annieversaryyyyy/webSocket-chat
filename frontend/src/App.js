@@ -6,7 +6,9 @@ import { apiUrl } from "./api/apiUrl";
 const App = () => {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [userName, setUserName] = useState("");
+  const [isCanvasOpen, setIsCanvasOpen] = useState(true);
 
   const ws = useRef(null);
 
@@ -32,7 +34,7 @@ const App = () => {
   }, []);
 
   const sendMessage = () => {
-    if (!messageText.trim()) {
+    if (!messageText.trim() && !imageUrl.trim()) {
       return;
     }
 
@@ -40,9 +42,11 @@ const App = () => {
       JSON.stringify({
         type: "CREATE_MESSAGE",
         message: messageText,
+        imageUrl: imageUrl || null,
       }),
     );
     setMessageText("");
+    setImageUrl("");
   };
 
   const changeUserName = () => {
@@ -52,6 +56,10 @@ const App = () => {
         userName,
       }),
     );
+  };
+
+  const openCanvas = () => {
+    setIsCanvasOpen(true);
   };
 
   return (
@@ -74,7 +82,16 @@ const App = () => {
           {messages.map((message, index) => (
             <div key={index} className="message-card">
               <div className="message-author">{message.username}</div>
-              <div className="message-text">{message.text}</div>
+              {message.text && (
+                <div className="message-text">{message.text}</div>
+              )}
+              {message.type === "image" && message.content && (
+                <img
+                  className="message-image"
+                  src={message.content}
+                  alt="attachment"
+                />
+              )}
             </div>
           ))}
         </div>
@@ -86,10 +103,17 @@ const App = () => {
             placeholder="Write a message..."
             onChange={(e) => setMessageText(e.target.value)}
           />
+          <input
+            type="text"
+            value={imageUrl}
+            placeholder="Image URL (optional)"
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
           <button onClick={sendMessage}>Send</button>
+          <button onClick={openCanvas}>Draw</button>
         </div>
       </div>
-      <CanvasDemo />
+      {isCanvasOpen && <CanvasDemo onClose={() => setIsCanvasOpen(false)} />}
     </>
   );
 };
