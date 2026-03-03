@@ -1,0 +1,1 @@
+export const apiUrl = 'ws://localhost:8000/chat'

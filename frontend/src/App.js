@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./App.css";
 import CanvasDemo from "./CanvasDemo";
+import { apiUrl } from "./api/apiUrl";
 
 const App = () => {
   const [messages, setMessages] = useState([]);
@@ -10,7 +11,7 @@ const App = () => {
   const ws = useRef(null);
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/chat");
+    const socket = new WebSocket(apiUrl);
     ws.current = socket;
 
     socket.onmessage = (event) => {

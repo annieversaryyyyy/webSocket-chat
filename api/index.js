@@ -8,6 +8,7 @@ const port = 8000;
 
 app.use(cors());
 const activeConnections = {};
+const pixelsArray = [];
 
 app.ws("/chat", (ws, req) => {
   const id = crypto.randomUUID();
@@ -20,6 +21,7 @@ app.ws("/chat", (ws, req) => {
     JSON.stringify({
       type: "CONNECTED",
       username,
+      pixelsArray,
     }),
   );
 
@@ -31,8 +33,8 @@ app.ws("/chat", (ws, req) => {
   ws.on("message", (msg) => {
     const decodedMessage = JSON.parse(msg);
     switch (decodedMessage.type) {
-        case "SET_USERNAME": 
-        username = decodedMessage.userName
+      case "SET_USERNAME":
+        username = decodedMessage.userName;
         break;
       case "CREATE_MESSAGE":
         Object.keys(activeConnections).forEach((connId) => {
@@ -45,6 +47,29 @@ app.ws("/chat", (ws, req) => {
                 username,
                 text: decodedMessage.message,
               },
+            }),
+          );
+        });
+        break;
+      case "ADD_PIXELS":
+        pixelsArray.push(decodedMessage.pixels);
+        Object.keys(activeConnections).forEach((connId) => {
+          const conn = activeConnections[connId];
+          conn.send(
+            JSON.stringify({
+              type: "NEW_PIXELS",
+              pixels: decodedMessage.pixels,
+            }),
+          );
+        });
+        break;
+      case "STROKE_END":
+        pixelsArray.push({ break: true });
+        Object.keys(activeConnections).forEach((connId) => {
+          const conn = activeConnections[connId];
+          conn.send(
+            JSON.stringify({
+              type: "STROKE_END",
             }),
           );
         });
