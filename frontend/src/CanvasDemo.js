@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { apiUrl } from "./api/apiUrl";
+import './CanvasDemo.css'
 
 function CanvasDemo({ onClose }) {
   const [state, setState] = useState({
@@ -33,7 +34,6 @@ function CanvasDemo({ onClose }) {
           pixelsArray: [...prevState.pixelsArray, decodedMessage.pixels],
         }));
       }
-    
 
       if (decodedMessage.type === "STROKE_END") {
         prevPos.current = null;
@@ -137,17 +137,30 @@ function CanvasDemo({ onClose }) {
 
   return (
     <>
-      <canvas
-        ref={canvas}
-        style={{ border: "1px solid black" }}
-        width={400}
-        height={400}
-        onMouseDown={mouseDownHandler}
-        onMouseUp={mouseUpHandler}
-        onMouseMove={canvasMouseMoveHandler}
-      />
-      <button onClick={handleSendDrawing}>Send</button>
-      <button onClick={onClose}>Close</button>
+      <div className="overlay">
+        <div className="modal">
+          <h3 className="modal-title">Draw something</h3>
+
+          <canvas
+            ref={canvas}
+            className="canvas"
+            width={400}
+            height={400}
+            onMouseDown={mouseDownHandler}
+            onMouseUp={mouseUpHandler}
+            onMouseMove={canvasMouseMoveHandler}
+          />
+
+          <div className="modal-buttons">
+            <button className="btn btn-send" onClick={handleSendDrawing}>
+              Send
+            </button>
+            <button className="btn btn-close" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
